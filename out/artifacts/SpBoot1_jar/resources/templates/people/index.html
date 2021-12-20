@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>All People</title>
+ <style type="text/css">
+   TABLE {
+    width: 300px; /* Ширина таблицы */
+    border-collapse: collapse; /* Убираем двойные линии между ячейками */
+   }
+   TD, TH {
+    padding: 3px; /* Поля вокруг содержимого таблицы */
+    border: 1px solid black; /* Параметры рамки */
+   }
+   TH {
+    background: #b0e0e6; /* Цвет фона */
+   }
+  </style>
+</head>
+<body>
+
+
+<h1>List of User</h1>
+<table>
+<thead>
+<tr>
+<th>Name</th><th>Age</th><th>Email</th><th>Edit</th><th>Del</th>
+</tr>
+</thead>
+<tbody th:each="person: ${people}">
+<tr >
+<td >
+<a th:text="${person.getName()}" th:href="@{/people/{id}(id=${person.getId()})}">User</a>
+</td>
+<td>
+<span th:text="${person.getAge()}">age</span>
+</td>
+<td>
+<span th:text="${person.getEmail()}">email</span>
+</td>
+<td>
+<a  th:href="@{/people/edit/{id}(id=${person.getId()})}">Edit!</a>
+</td>
+<td>
+<form th:method="Delete" th:action="@{/people/{id}(id=${person.getId()})}" th:object="${person}" >
+<input type="submit" value="Delete Person">
+</form>
+</td>
+</tr>
+</tbody>
+</table>
+<p>
+<a href="/people/new">Add Person</a>
+</p>
+</body>
+</html>
