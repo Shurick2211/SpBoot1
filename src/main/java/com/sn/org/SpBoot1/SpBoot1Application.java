@@ -1,10 +1,10 @@
 package com.sn.org.SpBoot1;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
@@ -27,10 +27,12 @@ public class SpBoot1Application {
 		filterRegistrationBean.setUrlPatterns(Arrays.asList("/*"));
 		return filterRegistrationBean;
 	}
-
-	private  String DB_URL ="jdbc:postgresql://localhost:5432/fMVC_db";
-	private  String USER="postgres" ;
-	private  String PASS="koshka$" ;
+	@Value("${DB_URL}")
+	private  String DB_URL ;
+	@Value("${USER}")
+	private  String USER;
+	@Value("${PASS}")
+	private  String PASS;
 	@Bean
 	public DataSource dataSource(){
 
