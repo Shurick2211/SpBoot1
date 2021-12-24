@@ -1,8 +1,11 @@
 package com.sn.org.SpBoot1.dao;
 
 import com.sn.org.SpBoot1.model.Person;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -14,7 +17,32 @@ import java.util.List;
 
 
 public class PersonDao {
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	private  int PEOPLE_COUNT=10;
+	public List<Person> index(){
+		return  jdbcTemplate.query("select * from persons", new BeanPropertyRowMapper<>(Person.class));
+	}
 
+	public Person show(int id) {
+		return  jdbcTemplate.query("select * from persons where id=?", new Object[]{id},
+				new BeanPropertyRowMapper<>(Person.class)).get(0);}
+
+	public void save(Person person) {
+		jdbcTemplate.update("insert into persons values(?,?,?,?)",++PEOPLE_COUNT,person.getName(),
+				person.getAge(),person.getEmail());
+	}
+
+	public void update(int id, Person person) {
+		jdbcTemplate.update("update persons set name=?, age=?, email=? where id=?",person.getName(),
+				person.getAge(),person.getEmail(),id);
+	}
+
+	public void delete(int id) {
+		jdbcTemplate.update("DELETE FROM persons WHERE id=?",id);
+	}
+
+/*
 //	@Value("${DB_URL}")
 	 private  String DB_URL ="jdbc:postgresql://localhost:5432/fMVC_db";
 //	@Value("${USER}")
@@ -47,14 +75,8 @@ public class PersonDao {
             System.out.println("Connected!");
         else System.out.println("Connected is FAIL!");
 	}
-	private Statement statement;
-	{
-		try {
-			statement=connection.createStatement();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+
+
 
 	private  int PEOPLE_COUNT;
 
@@ -62,8 +84,8 @@ public class PersonDao {
 		sql = "select count(*) from persons";
 
 		try {
-
-			ResultSet resultSet=statement.executeQuery(sql);
+			PreparedStatement statement=connection.prepareStatement(sql);
+			ResultSet resultSet=statement.executeQuery();
 			while(resultSet.next()) {
 				PEOPLE_COUNT=resultSet.getInt(1);
 			}
@@ -77,9 +99,9 @@ public class PersonDao {
 	public List<Person> index(){
 		List<Person> people=new ArrayList<>();
 		try {
-
-	            sql="select * from persons";
-	           ResultSet resultSet=statement.executeQuery(sql);
+			sql="select * from persons";
+			PreparedStatement statement=connection.prepareStatement(sql);
+	           ResultSet resultSet=statement.executeQuery();
 	           while(resultSet.next()) {
 	           Person person=new Person(resultSet.getInt("id"), resultSet.getString("name"),
 	        		   resultSet.getInt("age"), resultSet.getString("email"));
@@ -94,10 +116,10 @@ public class PersonDao {
 	public Person show(int id) {
 		Person person=null;
 		try {
-
-			sql="select * from persons where id='"+id+"'";
-
-				ResultSet resultSet = statement.executeQuery(sql);
+			sql="select * from persons where id=?";
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setInt(1,id);
+				ResultSet resultSet = statement.executeQuery();
 				while(resultSet.next()) {
 				person = new Person(resultSet.getInt("id"), resultSet.getString("name"),
 						resultSet.getInt("age"), resultSet.getString("email"));
@@ -111,11 +133,15 @@ public class PersonDao {
 	
 	public void save(Person person) {
 
-		person.setId(++PEOPLE_COUNT);
-		sql="insert into persons values ('"+person.getId()+"','"+person.getName()+"','"
-				+person.getAge()+"','"+person.getEmail()+"')";
+		sql="insert into persons values (?,?,?,?)";
 		try {
-			statement.execute(sql);
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setInt(1,++PEOPLE_COUNT);
+			statement.setString(2, person.getName());
+			statement.setInt(3,person.getAge());
+			statement.setString(4, person.getEmail());
+
+			statement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -124,10 +150,14 @@ public class PersonDao {
 
 	public void update(int id, Person person) {
 
-		sql="update persons set name='"+person.getName()+
-				"', age='"+person.getAge()+"', email='"+person.getEmail()+"' where id="+id;
+		sql="update persons set name='?', age=?, email='?' where id="+id;
 		try {
-			statement.execute(sql);
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,person.getName());
+			statement.setInt(2,person.getAge());
+			statement.setString(3, person.getEmail());
+
+			statement.execute();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -135,15 +165,17 @@ public class PersonDao {
 	}
 	
 	public void delete(int id) {
-		sql="DELETE FROM persons WHERE id="+"'"+id+"'";
+		sql="DELETE FROM persons WHERE id=?";
 		try {
-			statement.execute(sql);
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setInt(1,id);
+			statement.execute();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
 	}
-	
+	*/
 
 }
